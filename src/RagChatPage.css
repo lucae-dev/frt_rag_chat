@@ -1,0 +1,68 @@
+/* src/ChatGPTPage.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .chat-window {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f7f7f7;
+  }
+  
+  .message {
+    max-width: 80%;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  
+  .user-message {
+    align-self: flex-end;
+    background-color: #dcf8c6;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .assistant-message {
+    align-self: flex-start;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+  }
+  
+  .input-area textarea {
+    flex: 1;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  .input-area button {
+    margin-left: 10px;
+    padding: 0 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  code {
+    background-color: #eee;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  pre {
+    background-color: #2d2d2d;
+    padding: 15px;
+    border-radius: 5px;
+    overflow: auto;
+  }
