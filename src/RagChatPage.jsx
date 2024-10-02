@@ -1,7 +1,7 @@
 // src/ChatGPTPage.jsx
 import './RagChatPage.css';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -24,6 +24,11 @@ function ChatGPTPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const hiddenFileInput = useRef(null);
   const handleSend = async () => {
     if (input.trim() === '') return;
 
@@ -67,38 +72,94 @@ function ChatGPTPage() {
     }
   };
 
-  const getAssistantResponseFake = async (userInput) => {
-    // Simulate a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const handleFileSelectClick = () => {
+    hiddenFileInput.current.click();
+  };
 
-    // Simulate markdown content
-    const responseText = `
-Here is some JavaScript code:
+  const handleFileSelect = (event) => {
+    setSelectedFile(event.target.files[0]);
+    setShowConfirmButton(true);
+  };
 
-\`\`\`javascript
-function greet(name) {
-  console.log('Hello, ' + name + '!');
-}
-\`\`\`
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
 
-And here is a list:
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
 
-- Item 1
-- Item 2
-- Item 3
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      setSelectedFile(event.dataTransfer.files[0]);
+      setShowConfirmButton(true);
+      event.dataTransfer.clearData();
+    }
+  };
 
-**Bold Text**, *Italic Text*, and ~~Strikethrough~~.
-`;
+  const handleFileConfirm = async () => {
+    if (selectedFile) {
+      await sendFileMessage(selectedFile);
+      setSelectedFile(null);
+      setShowConfirmButton(false);
+    }
+  };
 
-    return {
-      sender: 'assistant',
-      text: responseText,
-    };
+  const handleFileCancel = () => {
+    setSelectedFile(null);
+    setShowConfirmButton(false);
+  };
+
+  const sendFileMessage = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Update chat messages to include the file upload message
+      const userMessage = {
+        sender: 'user',
+        text: `Uploaded a file: ${file.name}`,
+      };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+      // Optionally, handle the assistant's response if needed
+      // const assistantMessage = await getAssistantResponse(file.name);
+      // setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Handle error appropriately
+    }
+      // Update chat messages to include the file upload message with a link
+  const userMessage = {
+    sender: 'user',
+    text: `Uploaded a file: [${file.name}](#)`,
+  };
+  setMessages((prevMessages) => [...prevMessages, userMessage]);
   };
 
   return (
-    <div className="container">
-      <div className="chat-window">
+    <div className="chat-container">
+      <div
+        className={`chat-window ${isDragOver ? 'drag-over' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -138,6 +199,15 @@ And here is a list:
           </div>
         )}
       </div>
+
+      {selectedFile && (
+        <div className="file-preview">
+          <p>Selected File: {selectedFile.name}</p>
+          <button onClick={handleFileConfirm}>Confirm and Send</button>
+          <button onClick={handleFileCancel}>Cancel</button>
+        </div>
+      )}
+
       <div className="input-area">
         <textarea
           placeholder="Type your message..."
@@ -151,6 +221,13 @@ And here is a list:
           }}
         />
         <button onClick={handleSend}>Send</button>
+        <button onClick={handleFileSelectClick}>Upload File</button>
+        <input
+          type="file"
+          ref={hiddenFileInput}
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
       </div>
     </div>
   );

@@ -66,3 +66,42 @@
     border-radius: 5px;
     overflow: auto;
   }
+
+  /* Add to your ChatGPTPage.css or equivalent */
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .file-preview {
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .input-area {
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-area button {
+    margin-left: 10px;
+  }
+  
+  .chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Style for drag-and-drop area */
+  .chat-window {
+    border: 2px dashed transparent;
+  }
+  
+  .chat-window.drag-over {
+    border-color: #aaa;
+  }
