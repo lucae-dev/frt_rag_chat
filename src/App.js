@@ -1,9 +1,7 @@
-import logo from './logo.svg';
-import './App.css';
-import RagChatPage from './RagChatPage';
+import ChatPage from './features/chat/components/ChatPage';
 
 function App() {
-  return <RagChatPage/>;
+  return <ChatPage />;
 }
 
 export default App;
