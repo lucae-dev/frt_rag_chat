@@ -23,14 +23,14 @@ const emitCompleteEvents = (state, onChunk) => {
 };
 
 /** Streams the assistant answer, calling onChunk for every received token. */
-export const streamAssistantResponse = async (message, onChunk) => {
+export const streamAssistantResponse = async (request, onChunk) => {
   const response = await fetch(`${config.API_BASE_URL}/api/chat/stream`, {
     method: 'POST',
     headers: {
       Accept: 'text/event-stream',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(request),
   });
 
   if (!response.ok) {
@@ -68,5 +68,17 @@ export const streamAssistantResponse = async (message, onChunk) => {
     }
   } finally {
     reader.releaseLock();
+  }
+};
+
+export const saveChatFeedback = async (interactionId, feedback) => {
+  const response = await fetch(`${config.API_BASE_URL}/api/chat/interactions/${interactionId}/feedback`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(feedback),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Feedback request failed with status ${response.status}.`);
   }
 };

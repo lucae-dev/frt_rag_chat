@@ -1,12 +1,13 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { linkInlineCitations } from '../services/citationLinks';
+import ChatFeedback from './ChatFeedback';
 
 function ExternalLink({ href, children }) {
   return <a href={href} target="_blank" rel="noreferrer">{children}</a>;
 }
 
-function ChatMessage({ message }) {
+function ChatMessage({ message, onFeedback }) {
   const isUser = message.role === 'user';
   const content = isUser ? message.content : linkInlineCitations(message.content);
 
@@ -19,6 +20,7 @@ function ChatMessage({ message }) {
         ) : (
           <span className="chat-message__cursor" aria-label="Risposta in arrivo" />
         )}
+        {!isUser && <ChatFeedback message={message} onFeedback={onFeedback} />}
       </div>
     </article>
   );

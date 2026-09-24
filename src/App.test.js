@@ -15,4 +15,6 @@ test('renders the chat empty state', () => {
   render(<App />);
   expect(screen.getByText('Commercialista AI')).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: /come posso aiutarti/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /articolo 6 del tuir/i })).toBeInTheDocument();
+  expect(screen.getByText(/non inserire dati identificativi dei clienti/i)).toBeInTheDocument();
 });
