@@ -12,6 +12,7 @@ jest.mock('remark-gfm', () => ({
 }));
 
 test('renders the chat empty state', () => {
+  window.history.pushState({}, '', '/');
   render(<App />);
   expect(screen.getByText('Commercialista AI')).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: /come posso aiutarti/i })).toBeInTheDocument();
