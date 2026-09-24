@@ -41,7 +41,7 @@ function AdminLogin({ error, onLogin }) {
   };
 
   return (
-    <main className="admin-login">
+    <main className="admin-login ph-no-capture">
       <form className="admin-login__card" onSubmit={submit}>
         <p className="admin-eyebrow">Commercialista AI</p>
         <h1>Dashboard valutazioni</h1>
@@ -207,7 +207,7 @@ function AdminPage() {
   const lastItem = Math.min(offset + page.items.length, page.total);
 
   return (
-    <main className="admin-page">
+    <main className="admin-page ph-no-capture">
       <header className="admin-header">
         <div>
           <p className="admin-eyebrow">Commercialista AI</p>

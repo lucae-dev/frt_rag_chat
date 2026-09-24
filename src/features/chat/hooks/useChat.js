@@ -1,5 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { captureAnalyticsEvent, questionLengthBucket } from '../../analytics/services/analytics';
 import { saveChatFeedback, streamAssistantResponse } from '../services/chatApi';
+import { countSources } from '../services/citationLinks';
 import { createTrackingId, getSessionId } from '../services/sessionIds';
 
 const createMessage = (role, content, metadata = {}) => ({
@@ -26,11 +28,20 @@ export const useChat = () => {
   const [isSending, setIsSending] = useState(false);
   const conversationId = useRef(createTrackingId());
   const sessionId = useRef(getSessionId());
+  const chatViewTracked = useRef(false);
 
-  const sendMessage = useCallback(async (text) => {
+  useEffect(() => {
+    if (chatViewTracked.current) return;
+    chatViewTracked.current = true;
+    captureAnalyticsEvent('chat_viewed');
+  }, []);
+
+  const sendMessage = useCallback(async (text, options = {}) => {
     const content = text.trim();
     if (!content || isSending) return;
 
+    const startedAt = performance.now();
+    let responseContent = '';
     const interactionId = createTrackingId();
     const userMessage = createMessage('user', content);
     const assistantMessage = createMessage('assistant', '', {
@@ -41,6 +52,16 @@ export const useChat = () => {
     });
     setMessages((current) => [...current, userMessage, assistantMessage]);
     setIsSending(true);
+    captureAnalyticsEvent('question_submitted', {
+      input_type: options.inputType || 'free_text',
+      suggestion_id: options.suggestionId || null,
+      question_length_bucket: questionLengthBucket(content.length),
+    });
+    if (options.inputType === 'suggestion') {
+      captureAnalyticsEvent('suggested_question_clicked', {
+        suggestion_id: options.suggestionId,
+      });
+    }
 
     try {
       await streamAssistantResponse({
@@ -49,9 +70,15 @@ export const useChat = () => {
         conversationId: conversationId.current,
         sessionId: sessionId.current,
       }, (chunk) => {
+        responseContent += chunk;
         setMessages((current) => appendToMessage(current, assistantMessage.id, chunk));
       });
       setMessages((current) => updateMessage(current, assistantMessage.id, { isStreaming: false }));
+      captureAnalyticsEvent('answer_completed', {
+        duration_ms: Math.round(performance.now() - startedAt),
+        source_count: countSources(responseContent),
+        answer_length_bucket: questionLengthBucket(responseContent.length),
+      });
     } catch (error) {
       console.error('Unable to receive the assistant response.', error);
       setMessages((current) => updateMessage(current, assistantMessage.id, {
@@ -59,6 +86,10 @@ export const useChat = () => {
         isStreaming: false,
         failed: true,
       }));
+      captureAnalyticsEvent('answer_failed', {
+        duration_ms: Math.round(performance.now() - startedAt),
+        error_type: error?.name || 'Error',
+      });
     } finally {
       setIsSending(false);
     }
@@ -80,6 +111,10 @@ export const useChat = () => {
       setMessages((current) => updateMessage(current, messageId, {
         feedback: { rating, reason, status: 'saved' },
       }));
+      captureAnalyticsEvent('feedback_submitted', {
+        rating,
+        reason: reason || 'none',
+      });
     } catch (error) {
       console.error('Unable to save chat feedback.', error);
       setMessages((current) => updateMessage(current, messageId, {

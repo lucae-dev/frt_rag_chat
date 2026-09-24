@@ -1,5 +1,22 @@
 # Getting Started with Create React App
 
+## Product analytics
+
+PostHog is initialized only when `REACT_APP_POSTHOG_KEY` is configured. The production project uses the EU
+ingestion host through `REACT_APP_POSTHOG_HOST=https://eu.i.posthog.com`. Analytics events never include chat
+text. Session replay masks every input and every `.ph-mask` subtree, does not record request/response bodies or
+headers, and is entirely disabled on `/admin`.
+
+Tracked product events:
+
+- `chat_viewed`
+- `question_submitted`
+- `suggested_question_clicked`
+- `answer_completed`
+- `answer_failed`
+- `citation_clicked`
+- `feedback_submitted`
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

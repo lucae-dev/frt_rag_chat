@@ -15,7 +15,7 @@ function ChatComposer({ disabled, onSend }) {
   };
 
   return (
-    <form className="chat-composer" onSubmit={submit}>
+    <form className="chat-composer ph-mask" onSubmit={submit}>
       <textarea
         aria-label="Messaggio"
         disabled={disabled}

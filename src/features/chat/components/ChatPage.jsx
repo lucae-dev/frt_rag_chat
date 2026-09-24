@@ -19,8 +19,9 @@ function ChatPage() {
       <footer className="chat-page__footer">
         <ChatComposer disabled={isSending} onSend={sendMessage} />
         <p>
-          Le interazioni vengono usate per migliorare il servizio. Non inserire dati identificativi dei clienti.
-          Le risposte possono contenere errori: verifica sempre le informazioni importanti.
+          Le sessioni e le interazioni vengono usate per migliorare il servizio; i contenuti della chat sono
+          mascherati nelle registrazioni. Non inserire dati identificativi dei clienti. Le risposte possono
+          contenere errori: verifica sempre le informazioni importanti.
         </p>
       </footer>
     </main>

@@ -1,4 +1,4 @@
-import { linkInlineCitations } from '../services/citationLinks';
+import { countSources, linkInlineCitations } from '../services/citationLinks';
 
 const responseWithSources = `Il requisito si applica [S1].
 
@@ -12,4 +12,9 @@ test('turns an inline citation into the official source link', () => {
 
 test('does not alter citations when the response has no source section', () => {
   expect(linkInlineCitations('Risposta senza fonti [S1].')).toBe('Risposta senza fonti [S1].');
+});
+
+test('counts only sources from the deterministic footer', () => {
+  expect(countSources(responseWithSources)).toBe(1);
+  expect(countSources('Risposta senza fonti [S1].')).toBe(0);
 });

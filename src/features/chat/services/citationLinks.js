@@ -16,6 +16,12 @@ export function linkInlineCitations(content) {
   }) + sourcesSection;
 }
 
+export function countSources(content) {
+  const sourcesSectionIndex = content.indexOf(SOURCES_SECTION_HEADER);
+  if (sourcesSectionIndex === -1) return 0;
+  return extractSourceUrls(content.slice(sourcesSectionIndex)).size;
+}
+
 function extractSourceUrls(sourcesSection) {
   const sourceUrls = new Map();
   for (const entry of sourcesSection.matchAll(SOURCE_ENTRY_PATTERN)) {
