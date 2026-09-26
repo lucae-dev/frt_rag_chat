@@ -7,6 +7,9 @@ ingestion host through `REACT_APP_POSTHOG_HOST=https://eu.i.posthog.com`. Analyt
 text. Session replay masks every input and every `.ph-mask` subtree, does not record request/response bodies or
 headers, and is entirely disabled on `/admin`.
 
+The production Dockerfile declares both values as build arguments because Create React App substitutes
+`REACT_APP_*` variables while compiling the static bundle, not when Nginx starts.
+
 Tracked product events:
 
 - `chat_viewed`
