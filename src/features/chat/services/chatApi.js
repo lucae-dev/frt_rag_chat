@@ -23,18 +23,28 @@ const emitCompleteEvents = (state, onChunk) => {
 };
 
 /** Streams the assistant answer, calling onChunk for every received token. */
-export const streamAssistantResponse = async (request, onChunk) => {
+export class ChatApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = 'ChatApiError';
+    this.status = status;
+  }
+}
+
+export const streamAssistantResponse = async (request, onChunk, csrfToken) => {
   const response = await fetch(`${config.API_BASE_URL}/api/chat/stream`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       Accept: 'text/event-stream',
       'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': csrfToken,
     },
     body: JSON.stringify(request),
   });
 
   if (!response.ok) {
-    throw new Error(`Chat request failed with status ${response.status}.`);
+    throw new ChatApiError(`Chat request failed with status ${response.status}.`, response.status);
   }
   if (!response.body) {
     throw new Error('Chat response has no body.');
@@ -71,10 +81,14 @@ export const streamAssistantResponse = async (request, onChunk) => {
   }
 };
 
-export const saveChatFeedback = async (interactionId, feedback) => {
+export const saveChatFeedback = async (interactionId, feedback, csrfToken) => {
   const response = await fetch(`${config.API_BASE_URL}/api/chat/interactions/${interactionId}/feedback`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': csrfToken,
+    },
     body: JSON.stringify(feedback),
   });
 

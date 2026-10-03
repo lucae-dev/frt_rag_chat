@@ -23,7 +23,7 @@ const appendToMessage = (messages, messageId, chunk) =>
       : message,
   );
 
-export const useChat = () => {
+export const useChat = ({ csrfToken, onUsageChanged } = {}) => {
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const conversationId = useRef(createTrackingId());
@@ -72,7 +72,7 @@ export const useChat = () => {
       }, (chunk) => {
         responseContent += chunk;
         setMessages((current) => appendToMessage(current, assistantMessage.id, chunk));
-      });
+      }, csrfToken);
       setMessages((current) => updateMessage(current, assistantMessage.id, { isStreaming: false }));
       captureAnalyticsEvent('answer_completed', {
         duration_ms: Math.round(performance.now() - startedAt),
@@ -82,7 +82,9 @@ export const useChat = () => {
     } catch (error) {
       console.error('Unable to receive the assistant response.', error);
       setMessages((current) => updateMessage(current, assistantMessage.id, {
-        content: 'Mi dispiace, non riesco a completare la risposta in questo momento.',
+        content: error?.status === 429
+          ? 'Hai raggiunto il limite mensile del piano FREE.'
+          : 'Mi dispiace, non riesco a completare la risposta in questo momento.',
         isStreaming: false,
         failed: true,
       }));
@@ -92,8 +94,9 @@ export const useChat = () => {
       });
     } finally {
       setIsSending(false);
+      await onUsageChanged?.();
     }
-  }, [isSending]);
+  }, [csrfToken, isSending, onUsageChanged]);
 
   const submitFeedback = useCallback(async (messageId, rating, reason = null) => {
     const message = messages.find((candidate) => candidate.id === messageId);
@@ -107,7 +110,7 @@ export const useChat = () => {
         sessionId: sessionId.current,
         rating,
         reason,
-      });
+      }, csrfToken);
       setMessages((current) => updateMessage(current, messageId, {
         feedback: { rating, reason, status: 'saved' },
       }));
@@ -121,7 +124,7 @@ export const useChat = () => {
         feedback: { rating, reason, status: 'error' },
       }));
     }
-  }, [messages]);
+  }, [csrfToken, messages]);
 
   return { messages, isSending, sendMessage, submitFeedback };
 };
