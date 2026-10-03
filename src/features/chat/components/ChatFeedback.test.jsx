@@ -11,7 +11,7 @@ const completedMessage = {
 };
 
 test('submits positive feedback', () => {
-  const onFeedback = jest.fn();
+  const onFeedback = vi.fn();
   render(<ChatFeedback message={completedMessage} onFeedback={onFeedback} />);
 
   fireEvent.click(screen.getByRole('button', { name: 'Risposta utile' }));
@@ -20,7 +20,7 @@ test('submits positive feedback', () => {
 });
 
 test('shows reasons after negative feedback', () => {
-  const onFeedback = jest.fn();
+  const onFeedback = vi.fn();
   const negativeMessage = {
     ...completedMessage,
     feedback: { rating: -1, reason: null, status: 'saved' },
@@ -34,7 +34,7 @@ test('shows reasons after negative feedback', () => {
 
 test('does not render feedback while streaming', () => {
   const { container } = render(
-    <ChatFeedback message={{ ...completedMessage, isStreaming: true }} onFeedback={jest.fn()} />,
+    <ChatFeedback message={{ ...completedMessage, isStreaming: true }} onFeedback={vi.fn()} />,
   );
 
   expect(container).toBeEmptyDOMElement();

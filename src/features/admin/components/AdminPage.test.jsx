@@ -3,11 +3,11 @@ import AdminPage from './AdminPage';
 
 beforeEach(() => {
   window.sessionStorage.clear();
-  global.fetch = jest.fn();
+  global.fetch = vi.fn();
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 test('loads evaluations after the admin token is entered', async () => {

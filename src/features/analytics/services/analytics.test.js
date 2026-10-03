@@ -1,9 +1,9 @@
-jest.mock('posthog-js', () => ({
+vi.mock('posthog-js', () => ({
   __esModule: true,
   default: {
-    capture: jest.fn(),
-    init: jest.fn(),
-    startSessionRecording: jest.fn(),
+    capture: vi.fn(),
+    init: vi.fn(),
+    startSessionRecording: vi.fn(),
   },
 }));
 
@@ -15,12 +15,13 @@ import {
   sourceHost,
 } from './analytics';
 
-test('initializes session replay with chat privacy protections', () => {
-  process.env.REACT_APP_POSTHOG_KEY = 'phc_test_key';
-  process.env.REACT_APP_POSTHOG_HOST = 'https://eu.i.posthog.com';
+test('initializes session replay with chat privacy protections', async () => {
+  vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+  vi.stubEnv('VITE_POSTHOG_HOST', 'https://eu.i.posthog.com');
   window.history.pushState({}, '', '/');
 
   expect(initializeAnalytics()).toBe(true);
+  await vi.waitFor(() => expect(posthog.init).toHaveBeenCalled());
   expect(posthog.init).toHaveBeenCalledWith('phc_test_key', expect.objectContaining({
     autocapture: false,
     disable_session_recording: false,

@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-jest.mock('react-markdown', () => ({
+vi.mock('react-markdown', () => ({
   __esModule: true,
   default: ({ children }) => children,
 }));
 
-jest.mock('remark-gfm', () => ({
+vi.mock('remark-gfm', () => ({
   __esModule: true,
   default: () => {},
 }));
