@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+# Commercialista AI — frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SPA React per interrogare l'assistente fiscale, leggere citazioni verificabili, lasciare feedback e revisionare
+le conversazioni raccolte dalla dashboard amministrativa.
 
-## Available Scripts
+Produzione: [frontend-production-4668.up.railway.app](https://frontend-production-4668.up.railway.app).
 
-In the project directory, you can run:
+## Struttura
 
-### `npm start`
+```text
+src/
+  features/
+    chat/       componenti, hook, client SSE e gestione citazioni
+    admin/      dashboard, sessione token e client API
+    analytics/  PostHog e sole proprietà aggregate
+  App.jsx       selezione chat/admin
+  config.js     base URL del backend
+  index.jsx     bootstrap React
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Il codice è organizzato per funzionalità. Le chiamate HTTP stanno in `services`, lo stato della chat in `useChat`
+e i componenti si occupano soltanto della presentazione e degli eventi utente.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Sviluppo
 
-### `npm test`
+Richiede Node.js 22 o successivo.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm ci
+npm run dev
+```
 
-### `npm run build`
+In sviluppo il backend predefinito è `http://localhost:8080`. Si può sovrascrivere con:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+VITE_API_BASE_URL=http://localhost:8080 npm run dev
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Test e build
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm test
+npm run build
+npm audit
+```
 
-### `npm run eject`
+Vitest usa jsdom. La suite copre componenti principali, dashboard admin, hook della chat, feedback, analytics e
+decodifica SSE, incluso un evento diviso tra più chunk di rete. La build Vite viene prodotta in `dist/`.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Configurazione
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+| Variabile | Uso |
+| --- | --- |
+| `VITE_API_BASE_URL` | backend esplicito; in produzione vuoto usa il reverse proxy same-origin |
+| `VITE_POSTHOG_KEY` | project key pubblica PostHog |
+| `VITE_POSTHOG_HOST` | host EU, normalmente `https://eu.i.posthog.com` |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Le variabili `VITE_*` vengono incorporate nella build statica. Modificarle richiede una nuova build/deploy.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Privacy e dataset
 
-## Learn More
+Gli eventi analytics non contengono domanda o risposta. Gli input e i nodi `.ph-mask` sono mascherati nel session
+replay; body, header e console non vengono registrati. PostHog non viene inizializzato su `/admin`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Il backend conserva invece le interazioni per costruire un dataset di valutazione: la dashboard `/admin` richiede
+un token inserito dall'operatore e conservato soltanto in `sessionStorage`. Il token non deve mai essere aggiunto a
+variabili `VITE_*` o al bundle.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Deploy
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Il `Dockerfile` esegue la build Vite e serve `dist/` con Nginx. Nginx inoltra `/api` e `/v1` al backend privato e
+usa fallback a `index.html` per le route client-side. La configurazione Railway è mantenuta nella repository
+backend, in `.railway/railway.ts`.
