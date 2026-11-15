@@ -21,7 +21,7 @@ beforeEach(() => {
   loadAuthSession.mockResolvedValue({
     authenticated: true,
     user: { id: 'user-1', email: 'utente@example.com' },
-    usage: { plan: 'FREE', used: 3, limit: 50, remaining: 47 },
+    usage: { plan: 'FREE', used: 3, limit: 20, remaining: 17 },
     csrfToken: 'csrf-token',
     loginUrl: '/oauth2/authorization/google',
   });
@@ -31,7 +31,7 @@ test('renders the authenticated chat and usage', async () => {
   window.history.pushState({}, '', '/');
   render(<App />);
   expect(await screen.findByText('Commercialista AI')).toBeInTheDocument();
-  expect(screen.getByText('3/50 domande')).toBeInTheDocument();
+  expect(screen.getByText('3/20 domande questa settimana')).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: /come posso aiutarti/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /articolo 6 del tuir/i })).toBeInTheDocument();
   expect(screen.getByText(/non inserire dati identificativi dei clienti/i)).toBeInTheDocument();
