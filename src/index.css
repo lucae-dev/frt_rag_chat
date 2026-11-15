@@ -11,3 +11,5 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #212121;
 }
+
+.app-loading { min-height: 100dvh; display: grid; place-items: center; color: #aaa; }

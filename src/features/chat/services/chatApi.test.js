@@ -38,7 +38,7 @@ test('decodes SSE events even when network chunks split an event', async () => {
   expect(releaseLock).toHaveBeenCalledOnce();
   expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining('/api/chat/stream'),
-    expect.objectContaining({ method: 'POST' }),
+    expect.objectContaining({ method: 'POST', credentials: 'include' }),
   );
 });
 
@@ -49,15 +49,17 @@ test('rejects unsuccessful chat responses', async () => {
     .rejects.toThrow('status 503');
 });
 
-test('sends feedback with the interaction id and session id', async () => {
+test('sends authenticated feedback with CSRF protection', async () => {
   global.fetch = vi.fn().mockResolvedValue({ ok: true });
 
-  await saveChatFeedback('interaction-1', { sessionId: 'session-1', rating: 1 });
+  await saveChatFeedback('interaction-1', { sessionId: 'session-1', rating: 1 }, 'csrf-token');
 
   expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining('/api/chat/interactions/interaction-1/feedback'),
     expect.objectContaining({
       method: 'PUT',
+      credentials: 'include',
+      headers: expect.objectContaining({ 'X-XSRF-TOKEN': 'csrf-token' }),
       body: JSON.stringify({ sessionId: 'session-1', rating: 1 }),
     }),
   );

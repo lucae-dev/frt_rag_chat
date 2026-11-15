@@ -42,6 +42,7 @@ test('streams an answer and saves feedback for the same interaction', async () =
       interactionId: assistant.interactionId,
     }),
     expect.any(Function),
+    undefined,
   );
 
   await act(async () => {
@@ -51,6 +52,7 @@ test('streams an answer and saves feedback for the same interaction', async () =
   expect(saveChatFeedback).toHaveBeenCalledWith(
     assistant.interactionId,
     expect.objectContaining({ rating: 1 }),
+    undefined,
   );
   expect(result.current.messages[1].feedback).toEqual({
     rating: 1,

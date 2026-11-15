@@ -1,6 +1,6 @@
 # Commercialista AI — frontend
 
-SPA React per interrogare l'assistente fiscale, leggere citazioni verificabili, lasciare feedback e revisionare
+SPA React con login Google per interrogare l'assistente fiscale, leggere citazioni verificabili, lasciare feedback e revisionare
 le conversazioni raccolte dalla dashboard amministrativa.
 
 Produzione: [frontend-production-4668.up.railway.app](https://frontend-production-4668.up.railway.app).
@@ -11,6 +11,7 @@ Produzione: [frontend-production-4668.up.railway.app](https://frontend-productio
 src/
   features/
     chat/       componenti, hook, client SSE e gestione citazioni
+    auth/       sessione applicativa, login Google e logout CSRF-protected
     admin/      dashboard, sessione token e client API
     analytics/  PostHog e sole proprietà aggregate
   App.jsx       selezione chat/admin
@@ -44,7 +45,7 @@ npm run build
 npm audit
 ```
 
-Vitest usa jsdom. La suite copre componenti principali, dashboard admin, hook della chat, feedback, analytics e
+Vitest usa jsdom. La suite copre autenticazione, componenti principali, dashboard admin, hook della chat, feedback, analytics e
 decodifica SSE, incluso un evento diviso tra più chunk di rete. La build Vite viene prodotta in `dist/`.
 
 ## Configurazione
@@ -68,6 +69,7 @@ variabili `VITE_*` o al bundle.
 
 ## Deploy
 
-Il `Dockerfile` esegue la build Vite e serve `dist/` con Nginx. Nginx inoltra `/api` e `/v1` al backend privato e
+Il `Dockerfile` esegue la build Vite e serve `dist/` con Nginx. Nginx inoltra `/api`, `/v1`, `/oauth2` e il
+callback `/login/oauth2` al backend privato e
 usa fallback a `index.html` per le route client-side. La configurazione Railway è mantenuta nella repository
 backend, in `.railway/railway.ts`.
