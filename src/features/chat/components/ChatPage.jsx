@@ -15,7 +15,7 @@ function ChatPage({ session, onUsageChanged, onLogout }) {
       <header className="chat-header">
         <span>Commercialista AI</span>
         <div className="chat-account">
-          <span>{session.usage.used}/{session.usage.limit} domande</span>
+          <span>{session.usage.used}/{session.usage.limit} domande questa settimana</span>
           <button type="button" onClick={onLogout}>Esci</button>
         </div>
       </header>
@@ -27,7 +27,7 @@ function ChatPage({ session, onUsageChanged, onLogout }) {
         />
       </div>
       <footer className="chat-page__footer">
-        {limitReached && <p className="chat-limit">Limite mensile FREE raggiunto.</p>}
+        {limitReached && <p className="chat-limit">Limite settimanale FREE raggiunto.</p>}
         <ChatComposer disabled={isSending || limitReached} onSend={sendMessage} />
         <p>
           Le sessioni e le interazioni vengono usate per migliorare il servizio; i contenuti della chat sono

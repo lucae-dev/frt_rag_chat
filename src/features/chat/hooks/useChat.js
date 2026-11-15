@@ -83,7 +83,7 @@ export const useChat = ({ csrfToken, onUsageChanged } = {}) => {
       console.error('Unable to receive the assistant response.', error);
       setMessages((current) => updateMessage(current, assistantMessage.id, {
         content: error?.status === 429
-          ? 'Hai raggiunto il limite mensile del piano FREE.'
+          ? 'Hai raggiunto il limite di utilizzo. Riprova più tardi o alla prossima settimana.'
           : 'Mi dispiace, non riesco a completare la risposta in questo momento.',
         isStreaming: false,
         failed: true,

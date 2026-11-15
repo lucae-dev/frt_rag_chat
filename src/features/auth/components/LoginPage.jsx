@@ -20,7 +20,7 @@ function LoginPage({ session, error }) {
           <span aria-hidden="true">G</span>
           Continua con Google
         </a>
-        <small>Piano FREE · nessun metodo di pagamento richiesto</small>
+        <small>Piano FREE · 20 domande a settimana · nessun metodo di pagamento richiesto</small>
       </section>
     </main>
   );
