@@ -3,9 +3,14 @@ map $http_x_forwarded_proto $upstream_proto {
     "" $scheme;
 }
 
+map $upstream_proto $default_forwarded_port {
+    https 443;
+    default $server_port;
+}
+
 map $http_x_forwarded_port $upstream_port {
     default $http_x_forwarded_port;
-    "" $server_port;
+    "" $default_forwarded_port;
 }
 
 # The database enforces per-user and daily budgets; this caps request spikes.
